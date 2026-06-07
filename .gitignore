@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# macOS
+# ─────────────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Xcode
+# ─────────────────────────────────────────────────────────────────────────────
+build/
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+timeline.xctimeline
+playground.xcworkspace
+
+# Generated Xcode project (XcodeGen is the source of truth — see project.yml).
+# Re-generate with `make generate` (or `xcodegen generate`).
+*.xcodeproj/
+*.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Swift Package Manager
+# ─────────────────────────────────────────────────────────────────────────────
+.build/
+.swiftpm/
+Package.resolved
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CocoaPods / Carthage / Mint (not used, but ignored defensively)
+# ─────────────────────────────────────────────────────────────────────────────
+Pods/
+Carthage/Build/
+.mint/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Embedded third-party binaries — fetched at setup/build time by
+# scripts/fetch-binaries.sh. These are NOT committed (large, platform-specific,
+# and carry their own upstream licenses). The directory itself is kept via
+# .gitkeep so Xcode's folder reference resolves.
+# ─────────────────────────────────────────────────────────────────────────────
+DroidDock/Resources/vendor/*
+!DroidDock/Resources/vendor/.gitkeep
+.cache/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Misc
+# ─────────────────────────────────────────────────────────────────────────────
+*.log
+.env
+.idea/
+*.swp
