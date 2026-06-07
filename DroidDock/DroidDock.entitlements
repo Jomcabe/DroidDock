@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  App Sandbox is intentionally OMITTED. DroidDock spawns embedded
+	  executables (adb, scrcpy), binds the ADB server port, and communicates
+	  with USB/network devices — none of which is possible under the sandbox.
+	  This app is distributed outside the Mac App Store.
+
+	  Hardened Runtime IS enabled (see ENABLE_HARDENED_RUNTIME). scrcpy v4.0 is
+	  spawned as a statically-linked child process, so no third-party dylib is
+	  loaded into THIS process today. The exception below is kept as a safe
+	  margin for loading any embedded Mach-O that isn't signed by our team
+	  (e.g. future bundled helpers), and is harmless otherwise.
+	-->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

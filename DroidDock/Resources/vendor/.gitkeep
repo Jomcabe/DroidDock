@@ -1,0 +1,7 @@
+# This directory is populated at setup/build time by scripts/fetch-binaries.sh
+# with the embedded adb + scrcpy toolchain. The directory itself is committed
+# (via this placeholder) so the Xcode folder reference in project.yml resolves.
+#
+#   vendor/
+#   ├── adb                       (universal binary from platform-tools)
+#   └── scrcpy/{scrcpy, scrcpy-server, …}   (scrcpy v4.0 static build)
