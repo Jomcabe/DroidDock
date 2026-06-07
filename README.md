@@ -25,6 +25,7 @@ Built with SwiftUI + AppKit. Tuned for Apple Silicon (M-series) displays. No Hom
   - [The "docked borderless mirror" approach](#the-docked-borderless-mirror-approach)
   - [Clipboard sync](#clipboard-sync)
 - [Project layout](#project-layout)
+- [Install (no Terminal)](#install-no-terminal)
 - [Prerequisites](#prerequisites)
 - [Build & run](#build--run)
 - [Configuration & flags](#configuration--flags)
@@ -212,6 +213,36 @@ DroidDeck/                         # repository root
         └── vendor/                # ← populated by fetch-binaries.sh (git-ignored)
             └── .gitkeep
 ```
+
+## Install (no Terminal)
+
+You don't have to touch the command line. Pick whichever fits:
+
+### A · Download a ready-to-run app (built in the cloud)
+
+1. Open **Actions ▸ Build DroidDock**, choose the latest green run, and download
+   the **`DroidDock-macos`** artifact — or grab `DroidDock.app.zip` from the
+   latest **Release** (tagged builds).
+2. Unzip it and drag **`DroidDock.app`** into **Applications**.
+3. On first launch, right-click the app ▸ **Open** ▸ **Open** (it's ad-hoc-signed,
+   not notarized, so Gatekeeper asks once).
+
+Nothing to install on your Mac but a browser — the workflow in
+`.github/workflows/build.yml` compiles and ad-hoc-signs the app on a macOS runner.
+
+### B · Double-click installer (builds on your Mac)
+
+1. `git clone` this repo (or download + unzip it).
+2. Double-click **`Install DroidDock.command`** in Finder. If macOS blocks it the
+   first time, right-click ▸ **Open** ▸ **Open**.
+3. It verifies Xcode, fetches XcodeGen automatically (**no Homebrew required**),
+   builds a Release, copies **`DroidDock.app`** into **/Applications**, and
+   launches it — zero typing.
+
+> Building from source (option B, or the cloud runner) needs **full Xcode**; the
+> installer points you to the App Store if it's missing. Option A needs nothing.
+
+CLI users can equivalently run `make install`.
 
 ## Prerequisites
 

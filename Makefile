@@ -6,8 +6,9 @@ CONFIG   ?= Debug
 DERIVED  := build
 PROJECT  := $(APP_NAME).xcodeproj
 PRODUCT  := $(DERIVED)/Build/Products/$(CONFIG)/$(APP_NAME).app
+APP_INSTALL_DIR ?= /Applications
 
-.PHONY: all setup generate build run open sign clean reset help
+.PHONY: all setup generate build run open install sign clean reset help
 
 ## all: fetch binaries, generate the project, and build (default)
 all: setup generate build
@@ -35,6 +36,19 @@ run: build
 ## open: open the project in Xcode (⌘R to run)
 open: generate
 	@xed $(PROJECT)
+
+## install: build (Release) and copy DroidDock.app into /Applications
+install:
+	@$(MAKE) build CONFIG=Release
+	@dest="$(APP_INSTALL_DIR)"; \
+	if [ ! -w "$$dest" ]; then \
+		echo "⚠ $$dest not writable — installing to ~/Applications"; \
+		dest="$$HOME/Applications"; mkdir -p "$$dest"; \
+	fi; \
+	rm -rf "$$dest/$(APP_NAME).app"; \
+	cp -R "$(DERIVED)/Build/Products/Release/$(APP_NAME).app" "$$dest/"; \
+	xattr -dr com.apple.quarantine "$$dest/$(APP_NAME).app" 2>/dev/null || true; \
+	echo "✓ Installed → $$dest/$(APP_NAME).app"
 
 ## sign: Developer-ID sign the built app for distribution (set IDENTITY=...)
 sign:
