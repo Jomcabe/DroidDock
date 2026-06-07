@@ -154,7 +154,7 @@ final class ScrcpyController {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             // Ignore terminations from a stale process reference.
-            guard finished == self.process || self.process == nil else { return }
+            guard finished === self.process || self.process == nil else { return }
             self.process = nil
 
             if self.intentionalStop {
