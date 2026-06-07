@@ -3,5 +3,5 @@
 # (via this placeholder) so the Xcode folder reference in project.yml resolves.
 #
 #   vendor/
-#   ├── adb
-#   └── scrcpy/{scrcpy, scrcpy-server, *.dylib}
+#   ├── adb                       (universal binary from platform-tools)
+#   └── scrcpy/{scrcpy, scrcpy-server, …}   (scrcpy v4.0 static build)

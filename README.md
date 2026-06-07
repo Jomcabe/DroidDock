@@ -39,7 +39,7 @@ Built with SwiftUI + AppKit. Tuned for Apple Silicon (M-series) displays. No Hom
 
 | Feature | How |
 |---|---|
-| **Zero-install mirroring** | `adb` + `scrcpy` (and their dylibs/`scrcpy-server`) are embedded in `DroidDock.app/Contents/Resources/vendor` and resolved at runtime. |
+| **Zero-install mirroring** | `adb` + `scrcpy` (and `scrcpy-server`) are embedded in `DroidDock.app/Contents/Resources/vendor` and resolved at runtime. |
 | **Auto-connect on plug-in** | A USB connection watcher (IOKit) plus an `adb` device poller detect an authorized, USB-debugging-enabled device the moment it's attached and start the embedded ADB server. |
 | **120 Hz mirroring** | `scrcpy` is launched silently with `--max-fps=120 --stay-awake --turn-screen-off` and a Metal render driver, inside a borderless window docked to the app frame. |
 | **Native control HUD** | A floating, non-activating `NSPanel` of SwiftUI buttons (Home / Back / Recents / Volume / Power / Rotate / Screenshot / Record) that drive the phone via `adb shell input keyevent`. |
@@ -55,9 +55,10 @@ A normal scrcpy workflow assumes `brew install scrcpy` and an `adb` on your
 `PATH`. DroidDock makes **no such assumption**:
 
 1. **`scripts/fetch-binaries.sh`** downloads the *official* pre-compiled macOS
-   builds — Google's `platform-tools` (for `adb`) and the Genymobile static
-   `scrcpy` release (which bundles `scrcpy-server` and the `SDL2`/`ffmpeg`/`libusb`
-   dylibs) — into `DroidDock/Resources/vendor/`.
+   builds — Google's `platform-tools` (a universal `adb`) and the Genymobile
+   static `scrcpy` release (a self-contained binary with `SDL2`/`ffmpeg`/`libusb`
+   linked **statically**, shipped alongside its `scrcpy-server` companion) — into
+   `DroidDock/Resources/vendor/`.
 2. This runs **both** as a one-shot setup command (`make setup`) **and** as an
    idempotent **pre-build Run Script phase**, so a clean `xcodebuild` always
    produces a fully-populated bundle.
@@ -103,8 +104,8 @@ flowchart LR
     end
 
     subgraph Bundle["…/Contents/Resources/vendor"]
-        ADBBIN["adb"]
-        SCBIN["scrcpy + scrcpy-server + dylibs"]
+        ADBBIN["adb (universal)"]
+        SCBIN["scrcpy + scrcpy-server (static)"]
     end
 
     BR --> ADBBIN & SCBIN
@@ -141,9 +142,10 @@ calls them":
 //   …/Contents/Resources/vendor/scrcpy/scrcpy-server
 ```
 
-Because scrcpy's binary links its bundled dylibs via `@loader_path`, the whole
-`scrcpy/` directory is copied verbatim (as an Xcode *folder reference*) so the
-relative layout is preserved. When DroidDock spawns scrcpy it injects:
+scrcpy v4.0's macOS build is statically linked (no separate dylibs to chase), so
+the binary is self-sufficient. The whole `scrcpy/` directory is still copied
+verbatim (as an Xcode *folder reference*) to keep `scrcpy-server` beside it. When
+DroidDock spawns scrcpy it injects:
 
 ```
 ADB=<vendor>/adb
@@ -267,10 +269,11 @@ launch. Defaults are tuned for an M4 Pro:
 ## Code signing, hardened runtime & notarization
 
 - The app uses the **Hardened Runtime** with
-  `com.apple.security.cs.disable-library-validation = true` so it may load
-  scrcpy's third-party dylibs, and **App Sandbox is intentionally disabled** —
-  a tool that spawns embedded executables, binds the ADB port, and talks to USB
-  cannot run sandboxed.
+  `com.apple.security.cs.disable-library-validation = true` (a safe margin for
+  any unsigned embedded Mach-O; scrcpy itself is a statically-linked child
+  process), and **App Sandbox is intentionally disabled** — a tool that spawns
+  embedded executables, binds the ADB port, and talks to USB cannot run
+  sandboxed.
 - `fetch-binaries.sh` **de-quarantines** (`xattr -dr com.apple.quarantine`) and
   **ad-hoc signs** (`codesign -s -`) every embedded binary/dylib so they execute
   on Apple Silicon, which refuses to run unsigned code. Doing this at fetch time

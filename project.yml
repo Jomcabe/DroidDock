@@ -31,11 +31,12 @@ targets:
       - path: DroidDock
         excludes:
           - "Info.plist"
+          - "DroidDock.entitlements"
           - "Resources/vendor"
           - "Resources/vendor/**"
       # The embedded toolchain is added as a *folder reference* so its directory
-      # structure (scrcpy + its @loader_path dylibs) is copied verbatim into
-      # Contents/Resources/vendor. It is populated by the pre-build script below.
+      # structure (the static scrcpy binary + scrcpy-server) is copied verbatim
+      # into Contents/Resources/vendor. Populated by the pre-build script below.
       - path: DroidDock/Resources/vendor
         type: folder
 

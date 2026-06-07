@@ -14,11 +14,11 @@
 #
 # Layout produced:
 #   DroidDock/Resources/vendor/
-#   ├── adb                       (Google platform-tools)
-#   └── scrcpy/
+#   ├── adb                       (Google platform-tools — universal binary)
+#   └── scrcpy/                   (scrcpy v4.0 static build; libs linked in)
 #       ├── scrcpy
 #       ├── scrcpy-server
-#       └── *.dylib               (SDL2 / ffmpeg / libusb — linked via @loader_path)
+#       └── …                     (bundled adb, man page, icons)
 #
 set -euo pipefail
 
@@ -127,7 +127,7 @@ unzip -q -o "$PT_ZIP" -d "$PT_TMP"
 cp -f "${PT_TMP}/platform-tools/adb" "${VENDOR_DIR}/adb"
 chmod +x "${VENDOR_DIR}/adb"
 
-# ── scrcpy (static macOS build: binary + server + dylibs) ─────────────────────
+# ── scrcpy (static macOS build: self-contained binary + scrcpy-server) ────────
 SC_TGZ="${CACHE_DIR}/${SCRCPY_TARBALL}"
 [[ "$FORCE" -eq 1 || ! -f "$SC_TGZ" ]] && download "$SCRCPY_URL" "$SC_TGZ"
 
@@ -146,7 +146,7 @@ SC_PAYLOAD="$(dirname "$SC_BIN")"
 
 rm -rf "${VENDOR_DIR}/scrcpy"
 mkdir -p "${VENDOR_DIR}/scrcpy"
-# Copy the whole payload so the @loader_path-linked dylibs stay adjacent.
+# Copy the whole payload so scrcpy-server stays beside the scrcpy binary.
 cp -a "${SC_PAYLOAD}/." "${VENDOR_DIR}/scrcpy/"
 chmod +x "${VENDOR_DIR}/scrcpy/scrcpy"
 

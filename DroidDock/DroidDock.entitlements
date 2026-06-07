@@ -8,9 +8,11 @@
 	  with USB/network devices — none of which is possible under the sandbox.
 	  This app is distributed outside the Mac App Store.
 
-	  Hardened Runtime IS enabled (see ENABLE_HARDENED_RUNTIME). The single
-	  exception below lets the process load scrcpy's bundled third-party dylibs
-	  (SDL2 / ffmpeg / libusb), which are not signed by our team.
+	  Hardened Runtime IS enabled (see ENABLE_HARDENED_RUNTIME). scrcpy v4.0 is
+	  spawned as a statically-linked child process, so no third-party dylib is
+	  loaded into THIS process today. The exception below is kept as a safe
+	  margin for loading any embedded Mach-O that isn't signed by our team
+	  (e.g. future bundled helpers), and is harmless otherwise.
 	-->
 	<key>com.apple.security.cs.disable-library-validation</key>
 	<true/>

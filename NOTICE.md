@@ -7,7 +7,7 @@ into the application bundle. Each component remains under its own license.
 
 | Component | Purpose | Upstream | License |
 |-----------|---------|----------|---------|
-| **scrcpy** (+ `scrcpy-server`, bundled `libSDL2`, `ffmpeg`, `libusb` dylibs) | Low-latency screen mirroring & input | <https://github.com/Genymobile/scrcpy> | Apache-2.0 |
+| **scrcpy** (+ `scrcpy-server`; `SDL2`/`ffmpeg`/`libusb` statically linked) | Low-latency screen mirroring & input | <https://github.com/Genymobile/scrcpy> | Apache-2.0 |
 | **Android Platform-Tools** (`adb`) | Device discovery, shell, input, install, push | <https://developer.android.com/tools/releases/platform-tools> | Android Software Development Kit License Agreement |
 
 By running the setup script and distributing a built `DroidDock.app`, you are
