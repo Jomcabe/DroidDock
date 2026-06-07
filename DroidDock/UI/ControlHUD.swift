@@ -1,29 +1,33 @@
 import SwiftUI
 
-/// The floating control HUD: physical-button proxies plus screenshot/record,
-/// driven through `adb` so it works independently of the mirror's focus.
+/// The floating control HUD: physical-button proxies, clipboard copy/paste, and
+/// screenshot/record — all driven through `adb` so they work independently of
+/// the mirror window's focus.
 struct ControlHUD: View {
     @EnvironmentObject private var app: AppState
 
     var body: some View {
-        HStack(spacing: 8) {
-            HUDButton(symbol: "chevron.backward", label: "Back")      { app.send(.back) }
-            HUDButton(symbol: "house.fill", label: "Home")            { app.send(.home) }
-            HUDButton(symbol: "square.on.square", label: "Recents")   { app.send(.appSwitch) }
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                HUDButton(symbol: "chevron.backward", label: "Back")    { app.send(.back) }
+                HUDButton(symbol: "house.fill", label: "Home")          { app.send(.home) }
+                HUDButton(symbol: "square.on.square", label: "Recents") { app.send(.appSwitch) }
+                divider
+                HUDButton(symbol: "speaker.wave.1.fill", label: "Vol −") { app.send(.volumeDown) }
+                HUDButton(symbol: "speaker.wave.3.fill", label: "Vol +") { app.send(.volumeUp) }
+                HUDButton(symbol: "power", label: "Power")               { app.send(.power) }
+            }
 
-            divider
-
-            HUDButton(symbol: "speaker.wave.1.fill", label: "Vol −")  { app.send(.volumeDown) }
-            HUDButton(symbol: "speaker.wave.3.fill", label: "Vol +")  { app.send(.volumeUp) }
-            HUDButton(symbol: "power", label: "Power")                { app.send(.power) }
-
-            divider
-
-            HUDButton(symbol: "rotate.right", label: "Rotate")        { app.rotateDevice() }
-            HUDButton(symbol: "camera.fill", label: "Shot")           { app.captureScreenshot() }
-            HUDButton(symbol: app.isRecording ? "stop.circle.fill" : "record.circle",
-                      label: app.isRecording ? "Stop" : "Rec",
-                      tint: app.isRecording ? .red : nil)             { app.toggleRecording() }
+            HStack(spacing: 8) {
+                HUDButton(symbol: "doc.on.clipboard", label: "Copy")     { app.copyFromDevice() }
+                HUDButton(symbol: "doc.on.clipboard.fill", label: "Paste") { app.pasteToDevice() }
+                divider
+                HUDButton(symbol: "rotate.right", label: "Rotate")       { app.rotateDevice() }
+                HUDButton(symbol: "camera.fill", label: "Shot")          { app.captureScreenshot() }
+                HUDButton(symbol: app.isRecording ? "stop.circle.fill" : "record.circle",
+                          label: app.isRecording ? "Stop" : "Rec",
+                          tint: app.isRecording ? .red : nil)            { app.toggleRecording() }
+            }
         }
         .padding(12)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18))

@@ -107,6 +107,43 @@ final class AppState: ObservableObject {
         Task { await adb.rotateDevice(serial: serial) }
     }
 
+    // MARK: Clipboard copy/paste between the mirror and the Mac
+
+    /// Copy the device's current text selection to the Mac clipboard. Sends
+    /// KEYCODE_COPY (which puts the selection on the device clipboard) and then
+    /// pulls it back to `NSPasteboard` (scrcpy's autosync also mirrors it).
+    func copyFromDevice() {
+        guard let serial = selectedSerial else { return }
+        Task {
+            await adb.sendKey(.copy, serial: serial)
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            if let text = await adb.getDeviceClipboard(serial: serial), !text.isEmpty {
+                let pasteboard = NSPasteboard.general
+                pasteboard.clearContents()
+                pasteboard.setString(text, forType: .string)
+                Log.info("Copied \(text.count) characters from the device.")
+            } else {
+                Log.info("Sent Copy to the device (synced to Mac if a selection was active).")
+            }
+        }
+    }
+
+    /// Paste the Mac clipboard into the focused field on the device: push the
+    /// text to the device clipboard, then send KEYCODE_PASTE.
+    func pasteToDevice() {
+        guard let serial = selectedSerial else { return }
+        let text = NSPasteboard.general.string(forType: .string) ?? ""
+        guard !text.isEmpty else {
+            Log.warning("Paste: the Mac clipboard has no text.")
+            return
+        }
+        Task {
+            _ = await adb.setDeviceClipboard(text, serial: serial)
+            await adb.sendKey(.paste, serial: serial)
+            Log.info("Pasted \(text.count) characters to the device.")
+        }
+    }
+
     // MARK: Screenshot / recording
 
     func captureScreenshot() {
