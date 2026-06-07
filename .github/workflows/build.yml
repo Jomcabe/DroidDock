@@ -1,0 +1,72 @@
+name: Build DroidDock
+
+# Builds DroidDock on a macOS runner and publishes a ready-to-run, ad-hoc-signed
+# DroidDock.app. Download it from the run's "Artifacts" (or, for tagged releases,
+# from the GitHub Release) and drag it into /Applications — no terminal, no
+# build tools on your Mac.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & package DroidDock.app
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select latest stable Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Provision embedded adb & scrcpy
+        run: ./scripts/fetch-binaries.sh
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build (Release, ad-hoc signed)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project DroidDock.xcodeproj \
+            -scheme DroidDock \
+            -configuration Release \
+            -derivedDataPath build \
+            build
+
+      - name: Package DroidDock.app.zip
+        working-directory: build/Build/Products/Release
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent DroidDock.app DroidDock.app.zip
+          shasum -a 256 DroidDock.app.zip | tee DroidDock.app.zip.sha256
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DroidDock-macos
+          path: |
+            build/Build/Products/Release/DroidDock.app.zip
+            build/Build/Products/Release/DroidDock.app.zip.sha256
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/Build/Products/Release/DroidDock.app.zip
+            build/Build/Products/Release/DroidDock.app.zip.sha256
