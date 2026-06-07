@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🤖 DroidDock
+<img src="DroidDock/Resources/AppIcon-1024.png" width="160" alt="DroidDock icon" />
+
+# DroidDock
 
 **A production-grade, fully self-contained macOS app that mirrors and controls your Android device at up to 120 Hz.**
 
@@ -43,7 +45,8 @@ Built with SwiftUI + AppKit. Tuned for Apple Silicon (M-series) displays. No Hom
 | **Zero-install mirroring** | `adb` + `scrcpy` (and `scrcpy-server`) are embedded in `DroidDock.app/Contents/Resources/vendor` and resolved at runtime. |
 | **Auto-connect on plug-in** | A USB connection watcher (IOKit) plus an `adb` device poller detect an authorized, USB-debugging-enabled device the moment it's attached and start the embedded ADB server. |
 | **120 Hz mirroring** | `scrcpy` is launched silently with `--max-fps=120 --stay-awake --turn-screen-off` and a Metal render driver, inside a borderless window docked to the app frame. |
-| **Native control HUD** | A floating, non-activating `NSPanel` of SwiftUI buttons (Home / Back / Recents / Volume / Power / Rotate / Screenshot / Record) that drive the phone via `adb shell input keyevent`. |
+| **Native control HUD** | A floating, non-activating `NSPanel` of SwiftUI buttons (Home / Back / Recents / Volume / Power / Copy / Paste / Rotate / Screenshot / Record) that drive the phone via `adb shell input keyevent`. |
+| **Copy & paste from the mirror** | HUD **Copy** sends `KEYCODE_COPY` and pulls the device selection to the Mac; **Paste** pushes the Mac clipboard to the device and sends `KEYCODE_PASTE` into the focused field. |
 | **Bidirectional clipboard** | scrcpy's built-in clipboard forwarding **plus** a Mac-side `NSPasteboard` watcher that pushes/pulls text over `adb` so sync works even when the mirror isn't focused. |
 | **Wireless ADB** *(extra)* | One click switches the device to TCP/IP (`adb tcpip` + `adb connect <ip>:5555`) for cable-free mirroring. |
 | **Screenshot & record** *(extra)* | Instant screenshot via `adb exec-out screencap`; background screen recording via a dedicated headless `scrcpy --record` process. |

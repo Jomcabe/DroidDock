@@ -100,4 +100,6 @@ enum AndroidKey: Int {
     case power       = 26
     case notifications = 83
     case enter       = 66
+    case copy        = 278
+    case paste       = 279
 }
