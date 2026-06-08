@@ -19,6 +19,7 @@ struct ControlHUD: View {
             }
 
             HStack(spacing: 8) {
+                HUDButton(symbol: "selection.pin.in.out", label: "All")  { app.selectAllOnDevice() }
                 HUDButton(symbol: "doc.on.clipboard", label: "Copy")     { app.copyFromDevice() }
                 HUDButton(symbol: "doc.on.clipboard.fill", label: "Paste") { app.pasteToDevice() }
                 divider

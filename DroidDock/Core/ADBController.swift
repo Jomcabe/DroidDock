@@ -80,6 +80,13 @@ final class ADBController {
         _ = try? await run(["shell", "input", "tap", String(x), String(y)], serial: serial)
     }
 
+    /// Select all text in the focused field via Ctrl+A (KEYCODE_CTRL_LEFT + A).
+    /// Uses `input keycombination` (Android 11+); harmless no-op on older builds.
+    func selectAll(serial: String) async {
+        _ = try? await run(["shell", "input", "keycombination", "113", "29"], serial: serial)
+        Log.debug("select-all (Ctrl+A) → \(serial)")
+    }
+
     func inputText(_ text: String, serial: String) async {
         // `input text` treats spaces specially; %s is the documented escape.
         let escaped = text.replacingOccurrences(of: " ", with: "%s")

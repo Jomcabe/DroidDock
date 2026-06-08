@@ -186,6 +186,13 @@ final class ScrcpyController {
         if preferences.stayAwake           { args.append("--stay-awake") }
         if preferences.turnScreenOff       { args.append("--turn-screen-off") }
         if preferences.alwaysOnTop         { args.append("--always-on-top") }
+
+        // Input modes. "uhid" simulates a physical mouse/keyboard, which unlocks
+        // desktop-style click-drag text selection, right-click menus, and the
+        // ⌃A/⌃C/⌃V shortcuts. "sdk" (default) forwards touch + text events.
+        if preferences.mouseMode != "sdk"    { args.append("--mouse=\(preferences.mouseMode)") }
+        if preferences.keyboardMode != "sdk" { args.append("--keyboard=\(preferences.keyboardMode)") }
+
         args.append(contentsOf: audioArguments(forPlayback: true))
 
         if let frame {

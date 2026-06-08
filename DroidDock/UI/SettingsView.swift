@@ -10,10 +10,45 @@ struct SettingsView: View {
         TabView {
             mirroringTab
                 .tabItem { Label("Mirroring", systemImage: "iphone") }
+            inputTab
+                .tabItem { Label("Input", systemImage: "cursorarrow.rays") }
             behaviorTab
                 .tabItem { Label("Behavior", systemImage: "gearshape") }
         }
         .frame(width: 480, height: 500)
+    }
+
+    // MARK: Input
+
+    private var inputTab: some View {
+        Form {
+            Section("Pointer") {
+                Picker("Mouse", selection: $prefs.mouseMode) {
+                    Text("Touch (default)").tag("sdk")
+                    Text("Desktop pointer").tag("uhid")
+                }
+                Text("**Desktop pointer** gives the device a real mouse cursor, so you can click-and-drag to select text — like on a computer — and right-click for context menus, in any app. While the mirror is focused the pointer is captured by the device; press ⌥ or ⌘ to release it. Requires Android 11+.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Keyboard") {
+                Picker("Keyboard", selection: $prefs.keyboardMode) {
+                    Text("Text input (default)").tag("sdk")
+                    Text("Physical keyboard").tag("uhid")
+                }
+                Text("**Physical keyboard** forwards keys as a hardware keyboard, enabling ⌃A / ⌃C / ⌃V and Shift-arrow text selection on the device. Set the device's keyboard layout to match your Mac for correct symbols. Requires Android 11+.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Text("Tip: the control HUD's **Select All → Copy** also grabs a field's text without any selecting.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
     }
 
     // MARK: Mirroring

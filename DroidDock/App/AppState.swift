@@ -107,6 +107,16 @@ final class AppState: ObservableObject {
         Task { await adb.rotateDevice(serial: serial) }
     }
 
+    /// Select all text in the focused field on the device (Ctrl+A), so it can be
+    /// copied with one tap even when drag-to-select is awkward.
+    func selectAllOnDevice() {
+        guard let serial = selectedSerial else {
+            Log.warning("Select All ignored: no device selected.")
+            return
+        }
+        Task { await adb.selectAll(serial: serial) }
+    }
+
     // MARK: Clipboard copy/paste between the mirror and the Mac
 
     /// Copy the device's current text selection to the Mac clipboard. Sends
