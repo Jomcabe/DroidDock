@@ -41,5 +41,18 @@
 	     API; macOS gates that behind a user grant in Privacy &amp; Security. -->
 	<key>NSAppleEventsUsageDescription</key>
 	<string>DroidDock uses macOS automation to keep the mirror window docked to its frame.</string>
+	<!-- Sparkle automatic updates. Replace SUPublicEDKey with your own EdDSA
+	     public key from `generate_keys` (the private key stays on your machine /
+	     in a CI secret and signs each release). The appcast is published as a
+	     release asset, so the "latest release" URL always serves the newest one.
+	     See the README's "Automatic updates" section. -->
+	<key>SUFeedURL</key>
+	<string>https://github.com/Jomcabe/DroidDock/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>REPLACE_WITH_YOUR_SPARKLE_EDDSA_PUBLIC_KEY</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

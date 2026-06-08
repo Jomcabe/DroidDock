@@ -20,11 +20,20 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""
 
+packages:
+  # Sparkle powers in-app automatic updates (appcast + EdDSA-signed downloads).
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+
 targets:
   DroidDock:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
+
+    dependencies:
+      - package: Sparkle
 
     sources:
       # All Swift sources + Assets.xcassets, minus the things handled specially.

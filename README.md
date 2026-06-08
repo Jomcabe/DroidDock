@@ -31,6 +31,7 @@ Built with SwiftUI + AppKit. Tuned for Apple Silicon (M-series) displays. No Hom
 - [Prerequisites](#prerequisites)
 - [Build & run](#build--run)
 - [Configuration & flags](#configuration--flags)
+- [Automatic updates](#automatic-updates)
 - [Code signing, hardened runtime & notarization](#code-signing-hardened-runtime--notarization)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap / known limitations](#roadmap--known-limitations)
@@ -52,6 +53,7 @@ Built with SwiftUI + AppKit. Tuned for Apple Silicon (M-series) displays. No Hom
 | **Screenshot & record** *(extra)* | Instant screenshot via `adb exec-out screencap`; background screen recording via a dedicated headless `scrcpy --record` process. |
 | **APK drag-and-drop** *(extra)* | Drop an `.apk` onto the window to `adb install -r`; drop any other file to `adb push` it to the device. |
 | **Menu bar item** *(extra)* | An `NSStatusItem` for quick connect/disconnect, HUD toggle, and background operation. |
+| **Automatic updates** *(extra)* | [Sparkle](https://sparkle-project.org) checks a GitHub-hosted appcast and installs EdDSA-signed updates in place — see [Automatic updates](#automatic-updates). |
 
 ## Why it's "self-contained"
 
@@ -299,6 +301,69 @@ launch. Defaults are tuned for an M4 Pro:
 | Always on top | off | `--always-on-top` |
 | Auto-mirror on connect | on | *(DroidDock behavior)* |
 | Clipboard sync | on | *(scrcpy autosync + `ClipboardManager`)* |
+
+## Automatic updates
+
+DroidDock updates itself with **[Sparkle](https://sparkle-project.org)** — the
+standard framework for non-App-Store Mac apps.
+
+### How it works
+
+1. On its own schedule (daily by default, plus **Check for Updates…** in the menu
+   bar and Settings ▸ Behavior ▸ Updates), the app fetches an **appcast** — an XML
+   feed at `SUFeedURL`. It points at the *latest* GitHub Release's `appcast.xml`
+   asset, so the URL never changes:
+   `https://github.com/Jomcabe/DroidDock/releases/latest/download/appcast.xml`.
+2. The appcast lists the newest version (`CFBundleVersion`), its download URL, and
+   an **EdDSA (Ed25519) signature**. If that version is newer than the running one,
+   Sparkle offers the update.
+3. Sparkle downloads the `.zip`, **verifies the signature** against the
+   `SUPublicEDKey` baked into the app (so a tampered or unsigned build is rejected),
+   then swaps the app in place and relaunches. This is independent of Apple code
+   signing — it's Sparkle's own integrity check.
+
+Versioning is automatic: the release workflow stamps a tag like `v1.2.0` into
+`MARKETING_VERSION` and a monotonic `CURRENT_PROJECT_VERSION` (`10200`), which is
+the number Sparkle compares.
+
+> The **first** Sparkle-enabled build can't be delivered by auto-update (older
+> copies have no updater) — install it once manually. Every release after that
+> updates in place.
+
+### One-time setup (required to enable it)
+
+Auto-update ships **disabled** until you add your own signing key — the app
+detects the placeholder `SUPublicEDKey` and stays quiet rather than erroring.
+
+1. **Generate an EdDSA key pair** on your Mac (one time, ever):
+   ```bash
+   # Sparkle's tools come with the SPM checkout, or grab the release tarball:
+   #   https://github.com/sparkle-project/Sparkle/releases
+   ./bin/generate_keys
+   ```
+   This stores the **private** key in your login Keychain and prints the
+   **public** key (a base64 string).
+2. **Paste the public key** into `DroidDock/Info.plist` as `SUPublicEDKey`
+   (replacing `REPLACE_WITH_YOUR_SPARKLE_EDDSA_PUBLIC_KEY`).
+3. **Export the private key for CI** and store it as the GitHub Actions secret
+   **`SPARKLE_PRIVATE_KEY`** (repo ▸ Settings ▸ Secrets and variables ▸ Actions):
+   ```bash
+   ./bin/generate_keys -x sparkle_private_key.txt   # then paste the file's contents
+   ```
+   Keep this private key secret and out of git — anyone with it can sign updates
+   your users would trust.
+
+### Cutting a release
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0
+```
+
+The `Build DroidDock` workflow then builds the stamped Release, signs the zip,
+runs `generate_appcast`, and attaches **`DroidDock.app.zip`** + **`appcast.xml`**
+to the GitHub Release. Existing users get the update on their next check. (If
+`SPARKLE_PRIVATE_KEY` is missing, the build still publishes the app but skips the
+appcast, so no auto-update is served for that release.)
 
 ## Code signing, hardened runtime & notarization
 

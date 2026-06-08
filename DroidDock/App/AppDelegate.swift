@@ -87,6 +87,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(withTitle: "Screenshot", action: #selector(screenshot), keyEquivalent: "s")
         menu.addItem(withTitle: "Connect Wirelessly", action: #selector(connectWireless), keyEquivalent: "")
         menu.addItem(.separator())
+        menu.addItem(withTitle: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
         menu.addItem(withTitle: "Quit DroidDock", action: #selector(quit), keyEquivalent: "q")
         for item in menu.items { item.target = self }
         return menu
@@ -103,5 +104,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func toggleHUD()      { Task { @MainActor in AppState.shared.toggleHUD() } }
     @objc private func screenshot()     { Task { @MainActor in AppState.shared.captureScreenshot() } }
     @objc private func connectWireless(){ Task { @MainActor in AppState.shared.connectWirelessly() } }
+    @objc private func checkForUpdates(){ AppUpdater.shared.checkForUpdates() }
     @objc private func quit()           { NSApp.terminate(nil) }
 }

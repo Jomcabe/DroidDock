@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var prefs: Preferences
     @EnvironmentObject private var app: AppState
+    @StateObject private var updater = AppUpdater.shared
 
     var body: some View {
         TabView {
@@ -113,6 +114,22 @@ struct SettingsView: View {
             Section("Integration") {
                 Toggle("Bidirectional clipboard sync", isOn: $prefs.clipboardSync)
                 Toggle("Dock mirror window to the frame", isOn: $prefs.dockMirrorWindow)
+            }
+
+            Section("Updates") {
+                LabeledContent("Current version", value: updater.currentVersion)
+                if updater.isConfigured {
+                    Toggle("Automatically check for updates", isOn: Binding(
+                        get: { updater.automaticallyChecksForUpdates },
+                        set: { updater.automaticallyChecksForUpdates = $0 }
+                    ))
+                    Button("Check for Updates Now…") { updater.checkForUpdates() }
+                        .disabled(!updater.canCheckForUpdates)
+                } else {
+                    Text("Auto-update isn't configured for this build. Set `SUPublicEDKey` in Info.plist with your Sparkle public key — see the README.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section("Window docking") {

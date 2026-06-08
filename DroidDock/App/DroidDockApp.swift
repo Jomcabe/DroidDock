@@ -6,6 +6,7 @@ struct DroidDockApp: App {
     @StateObject private var appState = AppState.shared
     @StateObject private var preferences = Preferences.shared
     @StateObject private var appLog = AppLog.shared
+    @StateObject private var updater = AppUpdater.shared
 
     var body: some Scene {
         WindowGroup {
@@ -19,6 +20,11 @@ struct DroidDockApp: App {
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
         .commands {
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") { updater.checkForUpdates() }
+                    .disabled(!updater.canCheckForUpdates)
+            }
+
             CommandGroup(after: .toolbar) {
                 Button(appState.isMirroring ? "Stop Mirroring" : "Start Mirroring") {
                     appState.toggleMirror()
