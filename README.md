@@ -325,7 +325,10 @@ launch. Defaults are tuned for an M4 Pro:
 | Nothing happens on plug-in | Confirm USB debugging is on; some cables are charge-only. Check the in-app log (status rail ▸ Logs). |
 | `scrcpy` won't launch | Run `make setup` again; verify `DroidDock/Resources/vendor/scrcpy/scrcpy` exists and is signed (`codesign -dv …`). |
 | Mirror window doesn't track the frame | Grant **Accessibility** permission in *System Settings ▸ Privacy & Security ▸ Accessibility*. Without it, the window is positioned only at launch. |
+| Audio crackles, stutters, or drops out | Raise **Settings ▸ Mirroring ▸ Audio ▸ Buffer (ms)** (default 120; try 150–200). A bigger buffer trades a little latency for glitch-free playback. A USB-2.0 cable/port shared with 120 fps video can also starve audio — lower **Max FPS** or use a USB-3 cable. |
+| Can't drag to select text (only double-tap works) | Switch **Settings ▸ Input ▸ Mouse** to **Desktop pointer**. This simulates a physical mouse, so click-and-drag selects text in any app (and right-click opens context menus). Pair it with **Keyboard ▸ Physical keyboard** for ⌃A / ⌃C / ⌃V. Both need Android 11+. Or use the HUD's **Select All → Copy**. |
 | Clipboard pull doesn't work | Some Android builds restrict `cmd clipboard`. scrcpy's focused-window sync still works. |
+| Two mirror windows / an old build keeps mirroring | DroidDock enforces a single instance: launching a new build automatically quits older copies and clears any stray scrcpy window before it starts. If you still see a leftover, quit DroidDock from the menu bar and relaunch. |
 
 ## Roadmap / known limitations
 

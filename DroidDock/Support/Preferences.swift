@@ -19,6 +19,15 @@ final class Preferences: ObservableObject {
     @Published var forwardAudio: Bool     { didSet { defaults.set(forwardAudio, forKey: Keys.forwardAudio) } }
     @Published var alwaysOnTop: Bool      { didSet { defaults.set(alwaysOnTop, forKey: Keys.alwaysOnTop) } }
 
+    // MARK: Audio
+    @Published var audioCodec: String     { didSet { defaults.set(audioCodec, forKey: Keys.audioCodec) } }
+    @Published var audioBitRate: String   { didSet { defaults.set(audioBitRate, forKey: Keys.audioBitRate) } }
+    @Published var audioBuffer: Int       { didSet { defaults.set(audioBuffer, forKey: Keys.audioBuffer) } }  // ms
+
+    // MARK: Input
+    @Published var mouseMode: String      { didSet { defaults.set(mouseMode, forKey: Keys.mouseMode) } }
+    @Published var keyboardMode: String   { didSet { defaults.set(keyboardMode, forKey: Keys.keyboardMode) } }
+
     // MARK: Behavior
     @Published var autoMirrorOnConnect: Bool { didSet { defaults.set(autoMirrorOnConnect, forKey: Keys.autoMirrorOnConnect) } }
     @Published var clipboardSync: Bool       { didSet { defaults.set(clipboardSync, forKey: Keys.clipboardSync) } }
@@ -37,6 +46,11 @@ final class Preferences: ObservableObject {
         turnScreenOff       = defaults.bool(forKey: Keys.turnScreenOff)
         forwardAudio        = defaults.bool(forKey: Keys.forwardAudio)
         alwaysOnTop         = defaults.bool(forKey: Keys.alwaysOnTop)
+        audioCodec          = defaults.string(forKey: Keys.audioCodec) ?? "opus"
+        audioBitRate        = defaults.string(forKey: Keys.audioBitRate) ?? "128K"
+        audioBuffer         = defaults.integer(forKey: Keys.audioBuffer)
+        mouseMode           = defaults.string(forKey: Keys.mouseMode) ?? "sdk"
+        keyboardMode        = defaults.string(forKey: Keys.keyboardMode) ?? "sdk"
         autoMirrorOnConnect = defaults.bool(forKey: Keys.autoMirrorOnConnect)
         clipboardSync       = defaults.bool(forKey: Keys.clipboardSync)
         dockMirrorWindow    = defaults.bool(forKey: Keys.dockMirrorWindow)
@@ -52,6 +66,11 @@ final class Preferences: ObservableObject {
         static let turnScreenOff = "turnScreenOff"
         static let forwardAudio = "forwardAudio"
         static let alwaysOnTop = "alwaysOnTop"
+        static let audioCodec = "audioCodec"
+        static let audioBitRate = "audioBitRate"
+        static let audioBuffer = "audioBuffer"
+        static let mouseMode = "mouseMode"
+        static let keyboardMode = "keyboardMode"
         static let autoMirrorOnConnect = "autoMirrorOnConnect"
         static let clipboardSync = "clipboardSync"
         static let dockMirrorWindow = "dockMirrorWindow"
@@ -69,6 +88,17 @@ final class Preferences: ObservableObject {
             Keys.turnScreenOff: true,
             Keys.forwardAudio: true,
             Keys.alwaysOnTop: false,
+            // Opus @ 128K is transparent for most content. The 120 ms buffer is
+            // well above scrcpy's 50 ms default, which underruns on busy systems
+            // and is the usual cause of crackly / choppy forwarded audio.
+            Keys.audioCodec: "opus",
+            Keys.audioBitRate: "128K",
+            Keys.audioBuffer: 120,
+            // "sdk" forwards the mouse/keyboard as touch + text events (works
+            // everywhere). "uhid" simulates a physical mouse/keyboard so you get
+            // desktop-style click-drag text selection and ⌃A/⌃C/⌃V (Android 11+).
+            Keys.mouseMode: "sdk",
+            Keys.keyboardMode: "sdk",
             Keys.autoMirrorOnConnect: true,
             Keys.clipboardSync: true,
             Keys.dockMirrorWindow: true,

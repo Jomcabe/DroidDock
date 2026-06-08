@@ -30,6 +30,11 @@
 	<string>NSApplication</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
+	<!-- Stop LaunchServices from starting a second copy of DroidDock from the
+	     same path. Cross-path duplicates (e.g. a Debug build vs the installed
+	     Release) are caught at runtime in AppDelegate.enforceSingleInstance(). -->
+	<key>LSMultipleInstancesProhibited</key>
+	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>DroidDock — MIT-licensed. Bundles scrcpy (Apache-2.0) and Android platform-tools.</string>
 	<!-- DroidDock positions the borderless scrcpy mirror via the Accessibility

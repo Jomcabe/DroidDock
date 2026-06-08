@@ -5,6 +5,14 @@ import AppKit
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
 
+    /// Runs before any window or device monitoring exists: guarantee this launch
+    /// is the *only* DroidDock. A freshly built/installed copy must take over from
+    /// — not coexist with — an older one still alive in the menu bar; otherwise
+    /// both react to the same device authorization and you get two scrcpy windows.
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        enforceSingleInstance()
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusItem()
     }
@@ -17,6 +25,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         Task { @MainActor in AppState.shared.shutdown() }
+    }
+
+    // MARK: Single-instance enforcement
+
+    /// Replace any older DroidDock instances so exactly one runs. `pkill` of stray
+    /// scrcpy windows handles copies that crashed; terminating live instances
+    /// handles a Debug build launched alongside the installed Release (different
+    /// bundle paths, which LaunchServices is happy to run side by side).
+    private func enforceSingleInstance() {
+        // Sweep scrcpy mirrors orphaned by a previous run that never cleaned up.
+        ScrcpyController.reapOrphanMirrors()
+
+        guard let bundleID = Bundle.main.bundleIdentifier else { return }
+        let myPID = NSRunningApplication.current.processIdentifier
+        func otherInstances() -> [NSRunningApplication] {
+            // A fresh snapshot each call, so terminated copies drop out naturally.
+            NSRunningApplication
+                .runningApplications(withBundleIdentifier: bundleID)
+                .filter { $0.processIdentifier != myPID && !$0.isTerminated }
+        }
+
+        let others = otherInstances()
+        guard !others.isEmpty else { return }
+        Log.info("Replacing \(others.count) older DroidDock instance(s) so only one runs.")
+
+        // Ask them to quit cleanly first — that runs their shutdown(), which stops
+        // their own scrcpy child — then wait briefly before force-killing holdouts.
+        others.forEach { $0.terminate() }
+
+        let deadline = Date().addingTimeInterval(2.0)
+        while Date() < deadline {
+            if otherInstances().isEmpty { break }
+            Thread.sleep(forTimeInterval: 0.05)
+        }
+
+        let survivors = otherInstances()
+        if !survivors.isEmpty {
+            survivors.forEach { $0.forceTerminate() }
+            // A force-killed instance can't stop its own scrcpy, so sweep again.
+            ScrcpyController.reapOrphanMirrors()
+        }
     }
 
     // MARK: Menu bar
