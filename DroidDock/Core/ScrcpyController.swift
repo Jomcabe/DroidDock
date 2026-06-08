@@ -125,7 +125,9 @@ final class ScrcpyController {
             let environment = try BinaryResolver.scrcpyEnvironment()
             var arguments = ["-s", serial, "--no-window", "--no-playback", "--record=\(url.path)"]
             if preferences.maxFPS > 0 { arguments.append("--max-fps=\(preferences.maxFPS)") }
-            if !preferences.forwardAudio { arguments.append("--no-audio") }
+            // No live playback here, so the playback buffer is irrelevant — but
+            // the recording still benefits from the chosen codec / bit-rate.
+            arguments.append(contentsOf: audioArguments(forPlayback: false))
 
             let proc = try ProcessRunner.launch(
                 scrcpy, arguments: arguments, environment: environment
@@ -156,6 +158,22 @@ final class ScrcpyController {
 
     // MARK: - Internals
 
+    /// Audio flags shared by the live mirror and the headless recorder.
+    /// `forPlayback` gates the playback-only buffer: scrcpy's 50 ms default
+    /// underruns on a busy Mac and produces the crackly / choppy audio users
+    /// hear, so we raise it. The recorder runs with `--no-playback`, where the
+    /// buffer has no effect, so it's omitted there.
+    private func audioArguments(forPlayback: Bool) -> [String] {
+        guard preferences.forwardAudio else { return ["--no-audio"] }
+        var args: [String] = []
+        if !preferences.audioCodec.isEmpty   { args.append("--audio-codec=\(preferences.audioCodec)") }
+        if !preferences.audioBitRate.isEmpty { args.append("--audio-bit-rate=\(preferences.audioBitRate)") }
+        if forPlayback && preferences.audioBuffer > 0 {
+            args.append("--audio-buffer=\(preferences.audioBuffer)")
+        }
+        return args
+    }
+
     private func makeArguments(serial: String, frame: CGRect?) -> [String] {
         var args = ["-s", serial,
                     "--window-title=\(Self.mirrorWindowTitle)",
@@ -168,7 +186,7 @@ final class ScrcpyController {
         if preferences.stayAwake           { args.append("--stay-awake") }
         if preferences.turnScreenOff       { args.append("--turn-screen-off") }
         if preferences.alwaysOnTop         { args.append("--always-on-top") }
-        if !preferences.forwardAudio       { args.append("--no-audio") }
+        args.append(contentsOf: audioArguments(forPlayback: true))
 
         if let frame {
             args.append("--window-x=\(Int(frame.origin.x))")

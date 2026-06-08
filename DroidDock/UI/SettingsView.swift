@@ -13,7 +13,7 @@ struct SettingsView: View {
             behaviorTab
                 .tabItem { Label("Behavior", systemImage: "gearshape") }
         }
-        .frame(width: 480, height: 420)
+        .frame(width: 480, height: 500)
     }
 
     // MARK: Mirroring
@@ -39,8 +39,27 @@ struct SettingsView: View {
             Section("Display") {
                 Toggle("Keep device awake while mirroring", isOn: $prefs.stayAwake)
                 Toggle("Turn device screen off", isOn: $prefs.turnScreenOff)
-                Toggle("Forward device audio", isOn: $prefs.forwardAudio)
                 Toggle("Mirror window always on top", isOn: $prefs.alwaysOnTop)
+            }
+
+            Section("Audio") {
+                Toggle("Forward device audio", isOn: $prefs.forwardAudio)
+                Picker("Codec", selection: $prefs.audioCodec) {
+                    Text("Opus (recommended)").tag("opus")
+                    Text("AAC").tag("aac")
+                    Text("FLAC").tag("flac")
+                }
+                .disabled(!prefs.forwardAudio)
+                TextField("Bit-rate", text: $prefs.audioBitRate)
+                    .help("e.g. 128K, 192K")
+                    .disabled(!prefs.forwardAudio)
+                Stepper(value: $prefs.audioBuffer, in: 0...500, step: 10) {
+                    LabeledContent("Buffer (ms)", value: "\(prefs.audioBuffer)")
+                }
+                .disabled(!prefs.forwardAudio)
+                Text("Raise the buffer if audio crackles or stutters; lower it to cut latency. 120 ms suits most setups.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
