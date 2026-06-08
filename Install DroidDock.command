@@ -106,7 +106,15 @@ if [[ ! -d "$PRODUCT" ]]; then
 fi
 ok "Build succeeded."
 
-# ── 6. Install into /Applications (fall back to ~/Applications) ───────────────
+# ── 6. Quit any running copy so the update replaces it (no two instances) ─────
+info "Quitting any running copy of ${APP_NAME}…"
+osascript -e "tell application \"${APP_NAME}\" to quit" >/dev/null 2>&1 || true
+pkill -x "${APP_NAME}" 2>/dev/null || true
+# Reap any scrcpy mirror window the old copy may have left behind.
+pkill -f "window-title=DroidDock-Mirror" 2>/dev/null || true
+sleep 1   # let it release the bundle before we overwrite it
+
+# ── 7. Install into /Applications (fall back to ~/Applications) ───────────────
 DEST="/Applications"
 if [[ ! -w "$DEST" ]]; then
     warn "/Applications is not writable; installing to ~/Applications instead."
@@ -120,5 +128,5 @@ cp -R "$PRODUCT" "${DEST}/"
 xattr -dr com.apple.quarantine "${DEST}/${APP_NAME}.app" 2>/dev/null || true
 ok "Installed → ${DEST}/${APP_NAME}.app"
 
-# ── 7. Launch ─────────────────────────────────────────────────────────────────
+# ── 8. Launch ─────────────────────────────────────────────────────────────────
 open "${DEST}/${APP_NAME}.app" || true

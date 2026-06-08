@@ -40,6 +40,11 @@ open: generate
 ## install: build (Release) and copy DroidDock.app into /Applications
 install:
 	@$(MAKE) build CONFIG=Release
+	@echo "▸ Quitting any running $(APP_NAME) so the update replaces it…"
+	@osascript -e 'tell application "$(APP_NAME)" to quit' >/dev/null 2>&1 || true
+	@pkill -x $(APP_NAME) 2>/dev/null || true
+	@pkill -f window-title=DroidDock-Mirror 2>/dev/null || true
+	@sleep 1
 	@dest="$(APP_INSTALL_DIR)"; \
 	if [ ! -w "$$dest" ]; then \
 		echo "⚠ $$dest not writable — installing to ~/Applications"; \

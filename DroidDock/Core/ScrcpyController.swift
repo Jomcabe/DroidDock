@@ -8,8 +8,37 @@ import AppKit
 final class ScrcpyController {
 
     /// The fixed window title we tag scrcpy with so the Accessibility-based
-    /// positioner can find the right window.
+    /// positioner can find the right window. It also doubles as a unique marker
+    /// for reaping mirror windows orphaned by a previous DroidDock instance.
     static let mirrorWindowTitle = "DroidDock-Mirror"
+
+    /// Terminate any scrcpy mirror windows left running by a *previous* DroidDock
+    /// instance that crashed or was force-quit before it could stop its own child.
+    ///
+    /// We match scrcpy's unique `--window-title` marker via `pkill -f`, so only
+    /// *our* mirror windows are affected — never a scrcpy the user launched by
+    /// hand. Call this once at startup, before this instance launches its own
+    /// mirror, so it can never reap a window we still want. Blocks briefly
+    /// (`pkill` is effectively instant).
+    static func reapOrphanMirrors() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
+        // No leading dashes in the pattern, so pkill reads it as the match
+        // expression rather than as one of its own flags.
+        process.arguments = ["-f", "window-title=\(mirrorWindowTitle)"]
+        process.standardOutput = FileHandle.nullDevice
+        process.standardError = FileHandle.nullDevice
+        do {
+            try process.run()
+            process.waitUntilExit()
+            // pkill exits 0 only when it actually signalled a match.
+            if process.terminationStatus == 0 {
+                Log.info("Cleared a leftover scrcpy mirror from a previous instance.")
+            }
+        } catch {
+            Log.debug("Orphan mirror sweep skipped: \(error.localizedDescription)")
+        }
+    }
 
     enum State: Equatable {
         case stopped

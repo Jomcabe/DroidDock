@@ -326,6 +326,7 @@ launch. Defaults are tuned for an M4 Pro:
 | `scrcpy` won't launch | Run `make setup` again; verify `DroidDock/Resources/vendor/scrcpy/scrcpy` exists and is signed (`codesign -dv …`). |
 | Mirror window doesn't track the frame | Grant **Accessibility** permission in *System Settings ▸ Privacy & Security ▸ Accessibility*. Without it, the window is positioned only at launch. |
 | Clipboard pull doesn't work | Some Android builds restrict `cmd clipboard`. scrcpy's focused-window sync still works. |
+| Two mirror windows / an old build keeps mirroring | DroidDock enforces a single instance: launching a new build automatically quits older copies and clears any stray scrcpy window before it starts. If you still see a leftover, quit DroidDock from the menu bar and relaunch. |
 
 ## Roadmap / known limitations
 
